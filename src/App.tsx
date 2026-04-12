@@ -18,7 +18,7 @@ export function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8080');
+    const ws = new WebSocket('wss://chat-ws-b45f.onrender.com');
     wsRef.current = ws;
 
     ws.onopen = () => {
