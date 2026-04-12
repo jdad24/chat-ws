@@ -1,6 +1,8 @@
 import WebSocket, { WebSocketServer } from 'ws';
 
-const webSocketServer = new WebSocketServer({ port: 8080 });
+const PORT: string | undefined = process.env.PORT || '8080';
+
+const webSocketServer = new WebSocketServer({ port: Number(PORT), host: '0.0.0.0' });
 
 const clients = new Set<WebSocket>();
 
