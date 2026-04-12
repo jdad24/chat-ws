@@ -1,8 +1,18 @@
 import WebSocket, { WebSocketServer } from 'ws';
+import dotenv from 'dotenv';
+import express from 'express';
 
-const PORT: string | undefined = process.env.PORT || '8080';
+dotenv.config();
+const PORT: number | undefined = Number(process.env.PORT) || 8080;
 
-const webSocketServer = new WebSocketServer({ port: Number(PORT), host: '0.0.0.0' });
+const app = express()
+const expressServer = app.listen(PORT, '0.0.0.0', () => {
+    const host = expressServer.address() as WebSocket.AddressInfo;
+    console.log(`HTTP server is running on ${host}:${PORT}`);
+});
+
+
+const webSocketServer = new WebSocketServer({ server: expressServer });
 
 const clients = new Set<WebSocket>();
 

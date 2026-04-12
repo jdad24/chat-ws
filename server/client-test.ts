@@ -6,7 +6,7 @@ const readline = Readline.createInterface({
   output: process.stdout,
 });
 
-const ws = new WebSocket("ws://localhost:8080");
+const ws = new WebSocket("wss://chat-ws-b45f.onrender.com:8080");
 
 ws.on("open", async () => {
   console.log("Connected to the server");
