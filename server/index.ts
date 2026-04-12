@@ -1,4 +1,5 @@
-import WebSocket, { AddressInfo, WebSocketServer } from 'ws';
+import WebSocket, {WebSocketServer } from 'ws';
+import { AddressInfo } from 'net';
 import dotenv from 'dotenv';
 import express from 'express';
 
