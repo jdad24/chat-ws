@@ -27,7 +27,8 @@ webSocketServer.on('connection', (socket: WebSocket) => {
 
         for (let client of clients) {
             if (client === socket && client.readyState === client.OPEN) {
-                client.send("Back from server: " + message.toString());
+                // client.send("Back from server: " + message.toString());
+                console.log(`Echoing back to sender: ${message}`);
             }
         }
     });
