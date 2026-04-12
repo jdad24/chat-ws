@@ -1,14 +1,15 @@
-import WebSocket, { WebSocketServer } from 'ws';
+import WebSocket, { AddressInfo, WebSocketServer } from 'ws';
 import dotenv from 'dotenv';
 import express from 'express';
 
 dotenv.config();
 const PORT: number | undefined = Number(process.env.PORT) || 8080;
+let addressInfo: AddressInfo | string | null = null;
 
 const app = express()
 const expressServer = app.listen(PORT, '0.0.0.0', () => {
-    const host = expressServer.address() as WebSocket.AddressInfo;
-    console.log(`HTTP server is running on ${host}:${PORT}`);
+    addressInfo = expressServer.address() as AddressInfo | null;
+    console.log(`HTTP server is running on ${addressInfo?.address}:${addressInfo?.port}`);
 });
 
 
@@ -36,5 +37,3 @@ webSocketServer.on('connection', (socket: WebSocket) => {
     clients.delete(socket);
   });
 });
-
-console.log('WebSocket server is running on ws://localhost:8080');
