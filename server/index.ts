@@ -8,7 +8,7 @@ dotenv.config();
 const PORT: number | undefined = Number(process.env.PORT) || 8080;
 
 const app = express()
-const expressServer = app.listen(PORT, "0.0.0.0", () => {    
+const expressServer = app.listen(PORT, "0.0.0.0", () => {
     console.log(`HTTP server is running on port ${PORT}`);
 });
 
@@ -16,11 +16,12 @@ const wsClients = new Set<WebSocket>();
 
 const redisClient = new RedisClient();
 
-await redisClient.subscribe('chat-room1', async (message) => {
+await redisClient.subscribe('chat-room1', async (data) => {
+    const { message, socket } = JSON.parse(data);
     console.log(`Received message from Redis channel: ${message}`);
-    
+
     for (let client of wsClients) {
-        if (client.readyState === client.OPEN) {
+        if (socket !== client && client.readyState === client.OPEN) {
             client.send(message);
         }
     }
@@ -33,14 +34,11 @@ webSocketServer.on('connection', (socket: WebSocket) => {
     wsClients.add(socket);
 
     socket.on('message', async (message: WebSocket.Data) => {
-        console.log(`Received message: ${message}`);
+        console.log(`Received message: ${message}`);        
+        await redisClient.publish('chat-room1', JSON.stringify({ 
+            message: message.toString(),
+            socket: socket}));
         await redisClient.lPush('chat-room1-messages', message.toString());
-        
-        for (let client of wsClients) {
-            if (client === socket && client.readyState === client.OPEN) {                
-                await redisClient.publish('chat-room1', message.toString());                
-            }
-        }
     });
 
     socket.on('close', () => {
