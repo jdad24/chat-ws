@@ -1,7 +1,8 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import dotenv from 'dotenv';
 import express from 'express';
-import redisClient from './redis/index.ts';
+// import redisClient from './redis/index.ts';
+import RedisClient from './redis/index.ts';
 
 dotenv.config();
 const PORT: number | undefined = Number(process.env.PORT) || 8080;
@@ -12,6 +13,8 @@ const expressServer = app.listen(PORT, "0.0.0.0", () => {
 });
 
 const wsClients = new Set<WebSocket>();
+
+const redisClient = new RedisClient();
 
 await redisClient.subscribe('chat-room1', async (message) => {
     console.log(`Received message from Redis channel: ${message}`);
