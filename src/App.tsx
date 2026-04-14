@@ -23,6 +23,7 @@ export function Chat() {
       try {
         const response = await fetch('https://chat-ws-b45f.onrender.com/messages');
         const data = await response.json();
+        console.log('Fetched messages:', data);
         setMessages(prev => [...prev, ...data]);
       } catch (error) {
         console.error('Error fetching messages:', error);
