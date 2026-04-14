@@ -16,6 +16,7 @@ export function Chat() {
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [screenName, setScreenName] = useState('Anonymous');
 
   useEffect(() => {
     const ws = new WebSocket('wss://chat-ws-b45f.onrender.com');
@@ -27,7 +28,8 @@ export function Chat() {
     };
 
     ws.onmessage = (event) => {
-      setMessages(prev => [...prev, `Received: ${event.data}`]);
+      const { message, screenName } = JSON.parse(event.data);
+      setMessages(prev => [...prev, `${screenName}: ${message}`]);
     };
 
     ws.onclose = () => {
@@ -50,7 +52,7 @@ export function Chat() {
 
   const sendMessage = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && input.trim()) {
-      wsRef.current.send(input);
+      wsRef.current.send(JSON.stringify({ message: input, screenName }));
       setMessages(prev => [...prev, `Sent: ${input}`]);
       setInput('');
     }
@@ -68,12 +70,20 @@ export function Chat() {
       <div style={{ color: isConnected ? 'green' : 'red' }}>
         Status: {isConnected ? 'Connected' : 'Disconnected'}
       </div>
+       <input
+        type="text"
+        value={screenName}
+        onChange={(e) => setScreenName(e.target.value)}
+        onKeyPress={handleKeyPress}
+        placeholder="Enter your screen name..."
+        style={{ width: '70%', padding: '5px' }}
+      />
       <div style={{ height: '300px', overflowY: 'auto', border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
         {messages.map((msg, index) => (
           <div key={index}>{msg}</div>
         ))}
         <div ref={messagesEndRef} />
-      </div>
+      </div>     
       <input
         type="text"
         value={input}

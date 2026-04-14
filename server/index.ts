@@ -18,12 +18,12 @@ const wsClients = new Map<string,WebSocket>();
 const redisClient = new RedisClient();
 
 await redisClient.subscribe('chat-room1', async (data) => {
-    const { message, clientId } = JSON.parse(data);
+    const { message, clientId, screenName } = JSON.parse(data);
     console.log(`Received message from Redis channel: ${message}`);
 
     for (let [id, client] of wsClients) {
         if (clientId !== id && client.readyState === client.OPEN) {
-            client.send(message);
+            client.send(JSON.stringify({ message, screenName }));
         }
     }
 });
@@ -35,12 +35,15 @@ webSocketServer.on('connection', (socket: WebSocket) => {
     console.log('Client connected on WebSocket ', socket);
     wsClients.set(clientId, socket);
 
-    socket.on('message', async (message: WebSocket.Data) => {
+    socket.on('message', async (data: WebSocket.Data) => {
+        const { message, screenName } = JSON.parse(data.toString());
         console.log(`Received message: ${message}`);        
         await redisClient.publish('chat-room1', JSON.stringify({ 
             message: message.toString(),
-            clientId:clientId }));
-        await redisClient.lPush('chat-room1-messages', message.toString());
+            clientId:clientId,
+            screenName: screenName.toString()
+        }));
+        await redisClient.lPush('chat-room1-messages', JSON.stringify({ message: message.toString(), screenName: screenName.toString() }));
     });
 
     socket.on('close', () => {
