@@ -5,6 +5,7 @@ import express from 'express';
 import RedisClient from './redis/index.ts';
 import { randomUUID } from 'crypto';
 import cors from 'cors';
+import { SocketMessage } from './types/index.ts';
 
 dotenv.config();
 const PORT: number | undefined = Number(process.env.PORT) || 8080;
@@ -25,7 +26,7 @@ await redisClient.subscribe('chat-room1', async (data) => {
 
     for (let [id, client] of wsClients) {
         if (clientId !== id && client.readyState === client.OPEN) {
-            client.send(JSON.stringify({ message, screenName }));
+            client.send(JSON.stringify({ message, screenName } as SocketMessage));
         }
     }
 });
@@ -34,7 +35,12 @@ app.get('/messages', async (req, res) => {
     try {
         const redisClient = new RedisClient();
         const messages = await redisClient.lRange('chat-room1-messages', 0, -1);
-        const parsedMessages = messages.map((msg) => JSON.parse(msg));
+        const parsedMessages: Array<SocketMessage> = messages.map((msg) => {
+            const parsedMsg = JSON.parse(msg);
+            const message = parsedMsg?.message || '--';
+            const screenName = parsedMsg?.screenName || 'Anonymous';
+            return { message, screenName } as SocketMessage;
+        });
         res.json(parsedMessages);
     } catch (error) {
         console.error('Error fetching messages from Redis:', error);
