@@ -6,7 +6,7 @@ export default function App() {
   return (
     <div className="App">
       <Chat />
-   </div>
+    </div>
   )
 }
 
@@ -19,8 +19,20 @@ export function Chat() {
   const [screenName, setScreenName] = useState('Anonymous');
 
   useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch('https://chat-ws-b45f.onrender.com/messages');
+        const data = await response.json();
+        setMessages(prev => [...prev, ...data]);
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
+    };
+
     const ws = new WebSocket('wss://chat-ws-b45f.onrender.com');
     wsRef.current = ws;
+
+    fetchMessages()
 
     ws.onopen = () => {
       console.log('Connected to WebSocket server');
@@ -70,7 +82,7 @@ export function Chat() {
       <div style={{ color: isConnected ? 'green' : 'red' }}>
         Status: {isConnected ? 'Connected' : 'Disconnected'}
       </div>
-       <input
+      <input
         type="text"
         value={screenName}
         onChange={(e) => setScreenName(e.target.value)}
@@ -83,7 +95,7 @@ export function Chat() {
           <div key={index}>{msg}</div>
         ))}
         <div ref={messagesEndRef} />
-      </div>     
+      </div>
       <input
         type="text"
         value={input}

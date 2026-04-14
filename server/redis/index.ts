@@ -32,6 +32,10 @@ class RedisClient {
     async lPush(key: string, value: string) {
         await this.client.lPush(key, value);
     }
+
+    async lRange(key: string, start: number, stop: number): Promise<string[]> {
+        return await this.client.lRange(key, start, stop)
+    }
 }
 
 export default RedisClient;

@@ -28,6 +28,18 @@ await redisClient.subscribe('chat-room1', async (data) => {
     }
 });
 
+app.get('/messages', async (req, res) => {
+    try {
+        const redisClient = new RedisClient();
+        const messages = await redisClient.lRange('chat-room1-messages', 0, -1);
+        const parsedMessages = messages.map((msg) => JSON.parse(msg));
+        res.json(parsedMessages);
+    } catch (error) {
+        console.error('Error fetching messages from Redis:', error);
+        res.status(500).json({ error: 'Failed to fetch messages' });
+    }
+});
+
 const webSocketServer = new WebSocketServer({ server: expressServer });
 
 webSocketServer.on('connection', (socket: WebSocket) => {
