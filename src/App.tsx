@@ -11,7 +11,7 @@ export default function App() {
 }
 
 export function Chat() {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<{ message?: string; screenName?: string, type?: string }[]>([{ }]);
   const [input, setInput] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
@@ -24,7 +24,7 @@ export function Chat() {
         const response = await fetch('https://chat-ws-b45f.onrender.com/messages');
         const data = await response.json();
         console.log('Fetched messages:', data);
-        setMessages(prev => [...prev, ...data]);
+        setMessages(data);
       } catch (error) {
         console.error('Error fetching messages:', error);
       }
@@ -42,7 +42,7 @@ export function Chat() {
 
     ws.onmessage = (event) => {
       const { message, screenName } = JSON.parse(event.data);
-      setMessages(prev => [...prev, `${screenName}: ${message}`]);
+      setMessages(prev => [...prev, { screenName, message }]);
     };
 
     ws.onclose = () => {
@@ -66,7 +66,7 @@ export function Chat() {
   const sendMessage = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && input.trim()) {
       wsRef.current.send(JSON.stringify({ message: input, screenName }));
-      setMessages(prev => [...prev, `Sent: ${input}`]);
+      setMessages(prev => [...prev, {screenName, message: input }]);
       setInput('');
     }
   };
@@ -87,13 +87,14 @@ export function Chat() {
         type="text"
         value={screenName}
         onChange={(e) => setScreenName(e.target.value)}
-        onKeyPress={handleKeyPress}
         placeholder="Enter your screen name..."
         style={{ width: '70%', padding: '5px' }}
       />
       <div style={{ height: '300px', overflowY: 'auto', border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
         {messages.map((msg, index) => (
-          <div key={index}>{msg}</div>
+          <div key={index}>
+            <strong>{msg.screenName || 'Anonymous'}:</strong> {msg.message || '--'}
+          </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
