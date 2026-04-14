@@ -2,12 +2,11 @@ import './App.css'
 import { useState, useEffect, useRef } from 'react';
 
 export default function App() {
-
   return (
     <div className="App">
       <Chat />
     </div>
-  )
+  );
 }
 
 export function Chat() {
@@ -72,43 +71,62 @@ export function Chat() {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       sendMessage();
     }
   };
 
   return (
     <div className="Chat">
-      <h1>Chat</h1>
-      <div style={{ color: isConnected ? 'green' : 'red' }}>
-        Status: {isConnected ? 'Connected' : 'Disconnected'}
+      <div className="chat-header">
+        <h1>Chat</h1>
+        <div className="connection-status">
+          <div className={`status-indicator ${isConnected ? 'connected' : 'disconnected'}`} />
+          <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
+        </div>
       </div>
-      <input
-        type="text"
-        value={screenName}
-        onChange={(e) => setScreenName(e.target.value)}
-        placeholder="Enter your screen name..."
-        style={{ width: '70%', padding: '5px' }}
-      />
-      <div style={{ height: '300px', overflowY: 'auto', border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
-        {messages.map((msg, index) => (
-          <div key={index}>
-            <strong>{msg.screenName || 'Anonymous'}:</strong> {msg.message || '--'}
+
+      <div className="chat-input-section">
+        <div className="input-group">
+          <label htmlFor="screenName">Name</label>
+          <input
+            id="screenName"
+            type="text"
+            value={screenName}
+            onChange={(e) => setScreenName(e.target.value)}
+            placeholder="Enter your name"
+          />
+        </div>
+      </div>
+
+      <div className="messages-container">
+        {messages.filter(msg => msg.message).map((msg, index) => (
+          <div key={index} className={`message ${msg.screenName === screenName ? 'own' : 'other'}`}>
+            <div className="message-sender">{msg.screenName || 'Anonymous'}</div>
+            <div className="message-content">{msg.message}</div>
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyPress={handleKeyPress}
-        placeholder="Type a message..."
-        style={{ width: '70%', padding: '5px' }}
-      />
-      <button onClick={sendMessage} style={{ padding: '5px 10px', marginLeft: '10px' }}>
-        Send
-      </button>
+
+      <div className="chat-footer">
+        <textarea
+          className="message-input"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Type a message..."
+          rows={1}
+        />
+        <button
+          className="send-button"
+          onClick={sendMessage}
+          disabled={!input.trim() || !isConnected}
+        >
+          Send
+        </button>
+      </div>
     </div>
-  )
+  );
 }
