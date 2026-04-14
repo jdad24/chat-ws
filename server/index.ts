@@ -40,7 +40,7 @@ app.get('/messages', async (req, res) => {
             const message = parsedMsg?.message || '--';
             const screenName = parsedMsg?.screenName || 'Anonymous';
             return { message, screenName } as SocketMessage;
-        });
+        }).reverse();
         res.json(parsedMessages);
     } catch (error) {
         console.error('Error fetching messages from Redis:', error);
