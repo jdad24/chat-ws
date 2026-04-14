@@ -5,7 +5,7 @@ import express from 'express';
 import RedisClient from './redis/index.ts';
 import { randomUUID } from 'crypto';
 import cors from 'cors';
-import { SocketMessage } from './types/index.ts';
+import type { SocketMessage } from './types/index.ts';
 
 dotenv.config();
 const PORT: number | undefined = Number(process.env.PORT) || 8080;
