@@ -64,7 +64,7 @@ export function Chat() {
 
   const sendMessage = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && input.trim()) {
-      wsRef.current.send(JSON.stringify({ message: input, screenName, selectedChatroom }));
+      wsRef.current.send(JSON.stringify({ message: input, screenName, chatroom: selectedChatroom }));
       setMessages(prev => [...prev, { screenName, message: input, chatroom: selectedChatroom }]);
       setInput('');
     }
