@@ -10,19 +10,19 @@ export default function App() {
 }
 
 export function Chat() {
-  const [messages, setMessages] = useState<{ message?: string; screenName?: string, type?: string }[]>([{ }]);
+  const [messages, setMessages] = useState<{ message?: string; screenName?: string, chatroom?: string }[]>([{}]);
   const [input, setInput] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [screenName, setScreenName] = useState('Anonymous');
+  const [selectedChatroom, setSelectedChatroom] = useState('chatroom1');
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch('https://chat-ws-b45f.onrender.com/messages');
+        const response = await fetch(`https://chat-ws-b45f.onrender.com/messages?chatroom=${selectedChatroom}`);
         const data = await response.json();
-        console.log('Fetched messages:', data);
         setMessages(data);
       } catch (error) {
         console.error('Error fetching messages:', error);
@@ -40,8 +40,8 @@ export function Chat() {
     };
 
     ws.onmessage = (event) => {
-      const { message, screenName } = JSON.parse(event.data);
-      setMessages(prev => [...prev, { screenName, message }]);
+      const { message, screenName, chatroom } = JSON.parse(event.data);
+      setMessages(prev => [...prev, { screenName, message, chatroom }]);
     };
 
     ws.onclose = () => {
@@ -56,7 +56,7 @@ export function Chat() {
     return () => {
       ws.close();
     };
-  }, []);
+  }, [selectedChatroom]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -64,8 +64,8 @@ export function Chat() {
 
   const sendMessage = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && input.trim()) {
-      wsRef.current.send(JSON.stringify({ message: input, screenName }));
-      setMessages(prev => [...prev, {screenName, message: input }]);
+      wsRef.current.send(JSON.stringify({ message: input, screenName, selectedChatroom }));
+      setMessages(prev => [...prev, { screenName, message: input, chatroom: selectedChatroom }]);
       setInput('');
     }
   };
@@ -97,6 +97,14 @@ export function Chat() {
             onChange={(e) => setScreenName(e.target.value)}
             placeholder="Enter your name"
           />
+        </div>
+        <div className='input-group'>
+          <label htmlFor="chatroom-selection">Chatroom</label>
+          <select id="chatroom-selection" value={selectedChatroom} onChange={e => setSelectedChatroom(e.target.value)}>
+            <option value="chatroom1">Chatroom 1</option>
+            <option value="chatroom2">Chatroom 2</option>
+            <option value="chatroom3">Chatroom 3</option>
+          </select>
         </div>
       </div>
 

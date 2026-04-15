@@ -21,10 +21,18 @@ class RedisClient {
         await this.client.publish(channel, message);
     }
 
-    async subscribe(channel: string, callback: (message: string) => void) {
+    async subscribe(channel: string | string[], callback: (message: string) => void) {
         const subscriber = this.client.duplicate();
         await subscriber.connect();
         await subscriber.subscribe(channel, (message) => {
+            callback(message);
+        });
+    }
+
+     async pSubscribe(channel: string | string[], callback: (message: string) => void) {
+        const subscriber = this.client.duplicate();
+        await subscriber.connect();
+        await subscriber.pSubscribe(channel, (message) => {
             callback(message);
         });
     }
