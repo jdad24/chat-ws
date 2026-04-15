@@ -2,6 +2,9 @@
 
 A real-time chat application built with React frontend and Express/WebSocket backend, featuring persistent message storage with Redis.
 
+## Production Deployment UI
+  - `https://chat-ws-b45f.onrender.com`
+
 ## Overview
 
 This is a full-stack chat application that enables real-time messaging between multiple users. The frontend provides a professional, modern UI for chatting, while the backend handles WebSocket connections, message routing, and persistent storage using Redis.
