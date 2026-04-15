@@ -174,7 +174,9 @@ npm run preview   # Preview production build
 ```
 
 ## Deployment
-
+The UI and express/websocket backend are hosted on Render. Redis server is ran
+through Upstash.
+ 
 The application is currently deployed at: `https://chat-ws-b45f.onrender.com`
 
 ## Contributing
